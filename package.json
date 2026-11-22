@@ -17,7 +17,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "lint": "tsc --noEmit",
-    "generate-types": "npx openapi-typescript@7 https://www.etsy.com/openapi/generated/oas/3.0.0.json -o src/client/types.d.ts"
+    "generate-types": "npx openapi-typescript@7 https://www.etsy.com/openapi/generated/oas/3.0.0.json -o src/client/types.d.ts",
+    "build:mcpb": "esbuild src/extension.ts --bundle --platform=node --target=node20 --format=esm --outfile=mcpb/server/index.mjs --banner:js=\"import { createRequire as __cr } from 'module'; const require = __cr(import.meta.url);\" && cp LICENSE mcpb/ && mcpb pack mcpb etsy-mcp.mcpb"
   },
   "keywords": [
     "mcp",
@@ -44,7 +45,9 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
+    "@anthropic-ai/mcpb": "^2.1.2",
     "@types/node": "^25.5.0",
+    "esbuild": "^0.24.0",
     "typescript": "^6.0.2",
     "vitest": "^4.1.2"
   }

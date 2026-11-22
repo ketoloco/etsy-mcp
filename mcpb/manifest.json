@@ -1,0 +1,53 @@
+{
+  "manifest_version": "0.3",
+  "name": "etsy-neonkink",
+  "display_name": "Etsy Shop Manager (NeonKink AU)",
+  "version": "1.0.0",
+  "description": "Manage your Etsy shop from Claude: listings, photos, inventory, orders, shipping, reviews and payments.",
+  "long_description": "Connects Claude to your Etsy shop through the Etsy Open API v3. After adding your API keystring and shared secret, ask Claude to run the authenticate tool once to sign in to Etsy in your browser.",
+  "author": { "name": "Tobias (ketoloco)", "url": "https://github.com/ketoloco" },
+  "repository": { "type": "git", "url": "https://github.com/ketoloco/etsy-mcp" },
+  "homepage": "https://github.com/ketoloco/etsy-mcp",
+  "license": "MIT",
+  "keywords": ["etsy", "shop", "listings", "orders"],
+  "server": {
+    "type": "node",
+    "entry_point": "server/index.mjs",
+    "mcp_config": {
+      "command": "node",
+      "args": ["${__dirname}/server/index.mjs"],
+      "env": {
+        "ETSY_API_KEY": "${user_config.etsy_api_key}",
+        "ETSY_SHARED_SECRET": "${user_config.etsy_shared_secret}",
+        "ETSY_CALLBACK_PORT": "${user_config.callback_port}"
+      }
+    }
+  },
+  "user_config": {
+    "etsy_api_key": {
+      "type": "string",
+      "title": "Etsy API keystring",
+      "description": "The keystring shown for your app at etsy.com/developers/your-apps",
+      "sensitive": true,
+      "required": true
+    },
+    "etsy_shared_secret": {
+      "type": "string",
+      "title": "Etsy shared secret",
+      "description": "The shared secret for the same app",
+      "sensitive": true,
+      "required": true
+    },
+    "callback_port": {
+      "type": "number",
+      "title": "OAuth callback port",
+      "description": "Must match the callback URL registered on your Etsy app: http://localhost:<port>/callback",
+      "default": 3003,
+      "required": false
+    }
+  },
+  "compatibility": {
+    "platforms": ["win32", "darwin", "linux"],
+    "runtimes": { "node": ">=20.0.0" }
+  }
+}

@@ -8,3 +8,6 @@ dist/
 CLAUDE.md
 .claude/
 AGENTS.md
+mcpb/server/
+mcpb/LICENSE
+*.mcpb
