@@ -16,7 +16,8 @@ export interface EtsyClientConfig {
 export class EtsyClient {
   private config: EtsyClientConfig;
   private lastRequestTime = 0;
-  private minRequestInterval = 100;
+  // Etsy personal apps are limited to 5 requests per second; stay just under it.
+  private minRequestInterval = 210;
   private rateLimitQueue: Promise<void> = Promise.resolve();
 
   constructor(config: EtsyClientConfig) {
