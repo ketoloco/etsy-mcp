@@ -164,7 +164,7 @@ export class OAuthClient {
 
           res.writeHead(200, { "Content-Type": "text/html" });
           res.end(
-            "<html><body><h1>Authorization successful!</h1><p>You can close this window.</p></body></html>"
+            "<html><body style=\"font-family:sans-serif\"><h1>Authorization successful!</h1><p>You can close this tab and go back to Claude.</p></body></html>"
           );
           finish();
           resolve({ code, redirectUri, codeVerifier });
@@ -180,20 +180,27 @@ export class OAuthClient {
         );
       });
 
-      server.listen(port, async () => {
+      // Loopback only: the callback comes from the browser on this machine, and
+      // binding to 127.0.0.1 avoids the Windows Firewall prompt.
+      server.listen(port, "127.0.0.1", async () => {
         const authData = await this.buildAuthorizationUrl(redirectUri);
         codeVerifier = authData.codeVerifier;
         expectedState = authData.state;
 
-        const { default: open } = await import("open");
-        await open(authData.url);
         console.error(`\nOpen this URL to authorize:\n${authData.url}\n`);
+        try {
+          const { default: open } = await import("open");
+          await open(authData.url);
+        } catch (err) {
+          // Not fatal: the URL is logged above and the listener keeps waiting.
+          console.error("Could not open a browser automatically:", err);
+        }
       });
 
       const timeout = setTimeout(() => {
         server.close();
-        reject(new Error("OAuth flow timed out after 120 seconds"));
-      }, 120_000);
+        reject(new Error("Sign-in timed out after 5 minutes"));
+      }, 300_000);
     });
   }
 }

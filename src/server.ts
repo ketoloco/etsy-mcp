@@ -60,15 +60,13 @@ export function createEtsyMcpServer(config: ServerConfig): McpServer {
   server.registerTool(
     "authenticate",
     {
-      description: "Authenticate with Etsy via OAuth 2.0. Opens a browser for consent. Required before using tools that need user authorization.",
+      description: "Authenticate with Etsy via OAuth 2.0. Opens a browser for consent and waits in the background (up to 5 minutes) for the user to approve. If it reports it is still waiting, ask the user to approve in the browser, then call authenticate again to confirm. Required before using tools that need user authorization.",
     },
     async () => {
-      const token = await authManager.authenticate();
+      const result = await authManager.authenticate();
       return {
-        content: [{
-          type: "text" as const,
-          text: token ? "Successfully authenticated with Etsy!" : "Authentication failed.",
-        }],
+        content: [{ type: "text" as const, text: result.message }],
+        isError: result.status === "failed",
       };
     }
   );

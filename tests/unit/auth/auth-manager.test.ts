@@ -83,4 +83,43 @@ describe("AuthManager", () => {
     await manager.handleTokenExpired();
     expect(oauthClient.refreshAccessToken).toHaveBeenCalledWith("valid-refresh");
   });
+
+  it("authenticate returns immediately when already signed in", async () => {
+    await tokenStore.save({ access_token: "ok", refresh_token: "r", expires_at: Date.now() + 3600_000 });
+    const result = await manager.authenticate();
+    expect(result.status).toBe("authenticated");
+    expect(oauthClient.startLocalAuthFlow).not.toHaveBeenCalled();
+  });
+
+  it("authenticate completes and saves tokens when the user approves in time", async () => {
+    const result = await manager.authenticate(1000);
+    expect(result.status).toBe("authenticated");
+    expect(tokenStore.save).toHaveBeenCalled();
+  });
+
+  it("authenticate keeps waiting in the background past the tool-call wait", async () => {
+    let approve!: () => void;
+    (oauthClient.startLocalAuthFlow as any).mockImplementation(
+      () => new Promise((resolve) => { approve = () => resolve({ code: "c", redirectUri: "http://localhost:3003/callback", codeVerifier: "v" }); })
+    );
+    const first = await manager.authenticate(20);
+    expect(first.status).toBe("pending");
+
+    // A second call while waiting must not start another listener on the same port
+    const second = await manager.authenticate(20);
+    expect(second.status).toBe("pending");
+    expect(oauthClient.startLocalAuthFlow).toHaveBeenCalledTimes(1);
+
+    approve();
+    const third = await manager.authenticate(1000);
+    expect(third.status).toBe("authenticated");
+    expect(await manager.getAccessToken()).toBe("new-token");
+  });
+
+  it("authenticate reports a failed token exchange", async () => {
+    (oauthClient.exchangeCode as any).mockRejectedValue(new Error("invalid_grant"));
+    const result = await manager.authenticate(1000);
+    expect(result.status).toBe("failed");
+    expect(result.message).toContain("invalid_grant");
+  });
 });
