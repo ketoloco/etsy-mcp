@@ -74,6 +74,9 @@ export function registerListingsTools(server: McpServer, client: EtsyClient): vo
         shop_section_id: z.number().optional().describe("Shop section ID"),
         is_customizable: z.boolean().optional().describe("Can be personalized"),
         is_digital: z.boolean().optional().describe("Digital download"),
+        readiness_state_id: z.number().optional().describe("Processing profile (readiness state) ID; required by Etsy for physical listings. Copy it from an existing listing (get_listing)."),
+        return_policy_id: z.number().optional().describe("Return policy ID (see get_return_policies)"),
+        should_auto_renew: z.boolean().optional().describe("Renew automatically when the listing expires"),
       },
     },
     async (args) => {
@@ -108,6 +111,7 @@ export function registerListingsTools(server: McpServer, client: EtsyClient): vo
         item_weight: z.number().optional().describe("Item weight, in item_weight_unit"),
         item_weight_unit: z.enum(["oz", "lb", "g", "kg"]).optional().describe("Unit for item weight"),
         should_auto_renew: z.boolean().optional().describe("Renew automatically when the listing expires (Etsy charges a listing fee per renewal)"),
+        readiness_state_id: z.number().optional().describe("Processing profile (readiness state) ID"),
       },
     },
     async (args) => {
