@@ -107,6 +107,7 @@ export function registerListingsTools(server: McpServer, client: EtsyClient): vo
         item_dimensions_unit: z.enum(["in", "ft", "mm", "cm", "m", "yd", "inches"]).optional().describe("Unit for item dimensions"),
         item_weight: z.number().optional().describe("Item weight, in item_weight_unit"),
         item_weight_unit: z.enum(["oz", "lb", "g", "kg"]).optional().describe("Unit for item weight"),
+        should_auto_renew: z.boolean().optional().describe("Renew automatically when the listing expires (Etsy charges a listing fee per renewal)"),
       },
     },
     async (args) => {
